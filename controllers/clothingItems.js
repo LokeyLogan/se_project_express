@@ -1,0 +1,61 @@
+const ClothingItem = require("../models/clothingItem");
+const { BAD_REQUEST, NOT_FOUND, SERVER_ERROR } = require("../utils/errors");
+
+// GET all clothing items
+module.exports.getClothingItems = (req, res) => {
+  ClothingItem.find({})
+    .then((items) => res.send(items))
+    .catch((err) => {
+      console.error(err);
+      res
+        .status(SERVER_ERROR)
+        .send({ message: "An error occurred on the server" });
+    });
+};
+
+// POST create new clothing item
+module.exports.createClothingItem = (req, res) => {
+  const { name, weather, imageUrl } = req.body;
+  const owner = req.user._id; // added by temporary middleware
+
+  ClothingItem.create({ name, weather, imageUrl, owner })
+    .then((item) => res.status(201).send(item))
+    .catch((err) => {
+      console.error(err);
+      if (err.name === "ValidationError") {
+        res
+          .status(BAD_REQUEST)
+          .send({ message: "Invalid data for clothing item creation" });
+      } else {
+        res
+          .status(SERVER_ERROR)
+          .send({ message: "An error occurred on the server" });
+      }
+    });
+};
+
+// DELETE item by ID
+module.exports.deleteClothingItem = (req, res) => {
+  const { itemId } = req.params;
+
+  ClothingItem.findById(itemId)
+    .orFail(() => {
+      const error = new Error("Item not found");
+      error.statusCode = NOT_FOUND;
+      throw error;
+    })
+    .then((item) => item.deleteOne())
+    .then(() => res.send({ message: "Item deleted successfully" }))
+    .catch((err) => {
+      console.error(err);
+      if (err.name === "CastError") {
+        res.status(BAD_REQUEST).send({ message: "Invalid item ID" });
+      } else if (err.statusCode === NOT_FOUND) {
+        res.status(NOT_FOUND).send({ message: "Item not found" });
+      } else {
+        res
+          .status(SERVER_ERROR)
+          .send({ message: "An error occurred on the server" });
+      }
+    });
+};

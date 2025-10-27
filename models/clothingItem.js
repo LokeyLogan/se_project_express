@@ -1,5 +1,18 @@
-const mongoose = require("mongoose");
+const router = require("express").Router();
 
-const clothingItemsSchema = new mongoose.Schema({});
+// GET /items — return all clothing items
+router.get("/", (req, res) => {
+  res.send("GET all clothing items");
+});
 
-module.exports = mongoose.model("item", clothingItemsSchema);
+// POST /items — create a new clothing item
+router.post("/", (req, res) => {
+  res.send("POST create clothing item");
+});
+
+// DELETE /items/:itemId — delete an item by ID
+router.delete("/:itemId", (req, res) => {
+  res.send(`DELETE item with ID: ${req.params.itemId}`);
+});
+
+module.exports = router;
