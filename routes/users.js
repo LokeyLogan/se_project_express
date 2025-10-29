@@ -1,18 +1,17 @@
 const router = require("express").Router();
+const { getUsers, getUser, createUser } = require("../controllers/users");
+const {
+  validateCreateUser,
+  validateIdParam,
+} = require("../middlewares/validation");
 
 // GET /users — return all users
-router.get("/", (req, res) => {
-  res.send("GET all users");
-});
+router.get("/", getUsers);
 
-// GET /users/:userId — return one user by ID
-router.get("/:userId", (req, res) => {
-  res.send(`GET user by ID: ${req.params.userId}`);
-});
+// GET /users/:userId — return specific user by ID
+router.get("/:userId", validateIdParam, getUser);
 
 // POST /users — create a new user
-router.post("/", (req, res) => {
-  res.send("POST create user");
-});
+router.post("/", validateCreateUser, createUser);
 
 module.exports = router;

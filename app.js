@@ -1,11 +1,19 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const { errors } = require("celebrate");
 const mainRouter = require("./routes/index");
+const { NOT_FOUND } = require("./utils/errors");
 
 const app = express();
 const { PORT = 3001 } = process.env;
 
 app.use(express.json());
+
+// Temporary authorization middleware
+app.use((req, res, next) => {
+  req.user = { _id: "5d8b8592978f8bd833ca8133" }; // replace with your test user ID
+  next();
+});
 
 // Connect to MongoDB
 mongoose
@@ -16,9 +24,12 @@ mongoose
 // Use main router
 app.use("/", mainRouter);
 
+// Celebrate error handler (for Joi validation errors)
+app.use(errors());
+
 // 404 handler
 app.use((req, res) => {
-  res.status(404).send({ message: "Requested resource not found" });
+  res.status(NOT_FOUND).send({ message: "Requested resource not found" });
 });
 
 // Global error handler

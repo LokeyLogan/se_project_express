@@ -1,18 +1,42 @@
-const router = require("express").Router();
+const mongoose = require("mongoose");
+const validator = require("validator");
 
-// GET /items — return all clothing items
-router.get("/", (req, res) => {
-  res.send("GET all clothing items");
+const clothingItemSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    minlength: 2,
+    maxlength: 30,
+  },
+  weather: {
+    type: String,
+    required: true,
+    enum: ["hot", "warm", "cold"],
+  },
+  imageUrl: {
+    type: String,
+    required: true,
+    validate: {
+      validator: (value) => validator.isURL(value),
+      message: "You must enter a valid URL",
+    },
+  },
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "user",
+    required: true,
+  },
+  likes: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+      default: [],
+    },
+  ],
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
-// POST /items — create a new clothing item
-router.post("/", (req, res) => {
-  res.send("POST create clothing item");
-});
-
-// DELETE /items/:itemId — delete an item by ID
-router.delete("/:itemId", (req, res) => {
-  res.send(`DELETE item with ID: ${req.params.itemId}`);
-});
-
-module.exports = router;
+module.exports = mongoose.model("clothingItem", clothingItemSchema);

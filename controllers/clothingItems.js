@@ -13,10 +13,10 @@ module.exports.getClothingItems = (req, res) => {
     });
 };
 
-// POST create new clothing item
+// CREATE a new clothing item
 module.exports.createClothingItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
-  const owner = req.user._id; // added by temporary middleware
+  const owner = req.user._id;
 
   ClothingItem.create({ name, weather, imageUrl, owner })
     .then((item) => res.status(201).send(item))
@@ -34,7 +34,7 @@ module.exports.createClothingItem = (req, res) => {
     });
 };
 
-// DELETE item by ID
+// DELETE clothing item by ID
 module.exports.deleteClothingItem = (req, res) => {
   const { itemId } = req.params;
 
@@ -46,6 +46,60 @@ module.exports.deleteClothingItem = (req, res) => {
     })
     .then((item) => item.deleteOne())
     .then(() => res.send({ message: "Item deleted successfully" }))
+    .catch((err) => {
+      console.error(err);
+      if (err.name === "CastError") {
+        res.status(BAD_REQUEST).send({ message: "Invalid item ID" });
+      } else if (err.statusCode === NOT_FOUND) {
+        res.status(NOT_FOUND).send({ message: "Item not found" });
+      } else {
+        res
+          .status(SERVER_ERROR)
+          .send({ message: "An error occurred on the server" });
+      }
+    });
+};
+
+// LIKE clothing item
+module.exports.likeItem = (req, res) => {
+  ClothingItem.findByIdAndUpdate(
+    req.params.itemId,
+    { $addToSet: { likes: req.user._id } }, // adds if not already liked
+    { new: true }
+  )
+    .orFail(() => {
+      const error = new Error("Item not found");
+      error.statusCode = NOT_FOUND;
+      throw error;
+    })
+    .then((item) => res.send(item))
+    .catch((err) => {
+      console.error(err);
+      if (err.name === "CastError") {
+        res.status(BAD_REQUEST).send({ message: "Invalid item ID" });
+      } else if (err.statusCode === NOT_FOUND) {
+        res.status(NOT_FOUND).send({ message: "Item not found" });
+      } else {
+        res
+          .status(SERVER_ERROR)
+          .send({ message: "An error occurred on the server" });
+      }
+    });
+};
+
+// DISLIKE clothing item
+module.exports.dislikeItem = (req, res) => {
+  ClothingItem.findByIdAndUpdate(
+    req.params.itemId,
+    { $pull: { likes: req.user._id } }, // removes if liked
+    { new: true }
+  )
+    .orFail(() => {
+      const error = new Error("Item not found");
+      error.statusCode = NOT_FOUND;
+      throw error;
+    })
+    .then((item) => res.send(item))
     .catch((err) => {
       console.error(err);
       if (err.name === "CastError") {
