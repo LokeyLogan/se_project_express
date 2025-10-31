@@ -26,7 +26,7 @@ module.exports.getUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "CastError") {
-        res.status(BAD_REQUEST).send({ message: "Invalid user ID" });
+        res.status(BAD_REQUEST).send({ message: "Invalid data" });
       } else if (err.statusCode === NOT_FOUND) {
         res.status(NOT_FOUND).send({ message: "User not found" });
       } else {
@@ -45,9 +45,7 @@ module.exports.createUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        res
-          .status(BAD_REQUEST)
-          .send({ message: "Invalid data for user creation" });
+        res.status(BAD_REQUEST).send({ message: "Invalid data" });
       } else {
         res
           .status(SERVER_ERROR)

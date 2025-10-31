@@ -23,9 +23,7 @@ module.exports.createClothingItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        res
-          .status(BAD_REQUEST)
-          .send({ message: "Invalid data for clothing item creation" });
+        res.status(BAD_REQUEST).send({ message: "Invalid data" });
       } else {
         res
           .status(SERVER_ERROR)
@@ -49,7 +47,7 @@ module.exports.deleteClothingItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "CastError") {
-        res.status(BAD_REQUEST).send({ message: "Invalid item ID" });
+        res.status(BAD_REQUEST).send({ message: "Invalid data" });
       } else if (err.statusCode === NOT_FOUND) {
         res.status(NOT_FOUND).send({ message: "Item not found" });
       } else {
@@ -64,7 +62,7 @@ module.exports.deleteClothingItem = (req, res) => {
 module.exports.likeItem = (req, res) => {
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,
-    { $addToSet: { likes: req.user._id } }, // adds if not already liked
+    { $addToSet: { likes: req.user._id } },
     { new: true }
   )
     .orFail(() => {
@@ -76,7 +74,7 @@ module.exports.likeItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "CastError") {
-        res.status(BAD_REQUEST).send({ message: "Invalid item ID" });
+        res.status(BAD_REQUEST).send({ message: "Invalid data" });
       } else if (err.statusCode === NOT_FOUND) {
         res.status(NOT_FOUND).send({ message: "Item not found" });
       } else {
@@ -91,7 +89,7 @@ module.exports.likeItem = (req, res) => {
 module.exports.dislikeItem = (req, res) => {
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,
-    { $pull: { likes: req.user._id } }, // removes if liked
+    { $pull: { likes: req.user._id } },
     { new: true }
   )
     .orFail(() => {
@@ -103,7 +101,7 @@ module.exports.dislikeItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "CastError") {
-        res.status(BAD_REQUEST).send({ message: "Invalid item ID" });
+        res.status(BAD_REQUEST).send({ message: "Invalid data" });
       } else if (err.statusCode === NOT_FOUND) {
         res.status(NOT_FOUND).send({ message: "Item not found" });
       } else {
