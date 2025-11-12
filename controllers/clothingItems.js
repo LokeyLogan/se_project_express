@@ -1,7 +1,11 @@
 const ClothingItem = require("../models/clothingItem");
-const { BAD_REQUEST, NOT_FOUND, SERVER_ERROR } = require("../utils/errors");
+const {
+  BAD_REQUEST,
+  NOT_FOUND,
+  SERVER_ERROR,
+  FORBIDDEN,
+} = require("../utils/errors");
 
-// GET all clothing items
 module.exports.getClothingItems = (req, res) => {
   ClothingItem.find({})
     .then((items) => res.send(items))
@@ -13,7 +17,6 @@ module.exports.getClothingItems = (req, res) => {
     });
 };
 
-// CREATE a new clothing item
 module.exports.createClothingItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
   const owner = req.user._id;
@@ -32,7 +35,6 @@ module.exports.createClothingItem = (req, res) => {
     });
 };
 
-// DELETE clothing item by ID
 module.exports.deleteClothingItem = (req, res) => {
   const { itemId } = req.params;
 
@@ -42,7 +44,15 @@ module.exports.deleteClothingItem = (req, res) => {
       error.statusCode = NOT_FOUND;
       throw error;
     })
-    .then((item) => item.deleteOne())
+    .then((item) => {
+      // prevent deleting items that belong to another user
+      if (item.owner.toString() !== req.user._id) {
+        const error = new Error("You cannot delete this item");
+        error.statusCode = FORBIDDEN;
+        throw error;
+      }
+      return item.deleteOne();
+    })
     .then(() => res.send({ message: "Item deleted successfully" }))
     .catch((err) => {
       console.error(err);
@@ -50,6 +60,8 @@ module.exports.deleteClothingItem = (req, res) => {
         res.status(BAD_REQUEST).send({ message: "Invalid data" });
       } else if (err.statusCode === NOT_FOUND) {
         res.status(NOT_FOUND).send({ message: "Item not found" });
+      } else if (err.statusCode === FORBIDDEN) {
+        res.status(FORBIDDEN).send({ message: "Forbidden" });
       } else {
         res
           .status(SERVER_ERROR)
@@ -58,7 +70,6 @@ module.exports.deleteClothingItem = (req, res) => {
     });
 };
 
-// LIKE clothing item
 module.exports.likeItem = (req, res) => {
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,
@@ -85,7 +96,6 @@ module.exports.likeItem = (req, res) => {
     });
 };
 
-// DISLIKE clothing item
 module.exports.dislikeItem = (req, res) => {
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,
