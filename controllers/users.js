@@ -26,7 +26,7 @@ module.exports.createUser = (req, res) => {
     )
     .then((user) => {
       const userData = user.toObject();
-      delete userData.password; // ensure password hash is never sent back
+      delete userData.password;
       res.status(201).send(userData);
     })
     .catch((err) => {
