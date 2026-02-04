@@ -16,7 +16,9 @@ router.post("/signin", validateLogin, login);
 router.post("/signup", validateCreateUser, createUser);
 
 // public route: anyone can view items
-router.get("/items", getClothingItems);
+router.get("/", (req, res) => {
+  res.send({ message: "WTWR API is running" });
+});
 
 // all routes below this require a valid JWT
 router.use(auth);
