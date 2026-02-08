@@ -1,19 +1,18 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const cors = require("cors");
 const { errors } = require("celebrate");
-
-const mainRouter = require("./routes");
+const cors = require("cors");
+const mainRouter = require("./routes/index");
 const errorHandler = require("./middlewares/error-handler");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
 
 const app = express();
 const { PORT = 3001 } = process.env;
 
-app.use(express.json());
 app.use(cors());
+app.use(express.json());
 
-// request logger — MUST be before routes
+// ✅ request logger BEFORE routes
 app.use(requestLogger);
 
 mongoose
@@ -23,15 +22,13 @@ mongoose
 
 app.use("/", mainRouter);
 
-// error logger — MUST be after routes
+// ✅ error logger AFTER routes
 app.use(errorLogger);
 
-// celebrate validation errors
+// ✅ celebrate errors BEFORE centralized handler
 app.use(errors());
 
-// centralized error handler
+// ✅ centralized error handler last
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

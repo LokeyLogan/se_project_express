@@ -1,8 +1,8 @@
 const ClothingItem = require("../models/clothingItem");
 
 const BadRequestError = require("../errors/bad-request-err");
-const ForbiddenError = require("../errors/forbidden-err");
 const NotFoundError = require("../errors/not-found-err");
+const ForbiddenError = require("../errors/forbidden-err");
 
 module.exports.getClothingItems = (req, res, next) => {
   ClothingItem.find({})
@@ -18,10 +18,9 @@ module.exports.createClothingItem = (req, res, next) => {
     .then((item) => res.status(201).send(item))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        next(new BadRequestError("Invalid data"));
-        return;
+        return next(new BadRequestError("Invalid data"));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -31,19 +30,17 @@ module.exports.deleteClothingItem = (req, res, next) => {
   ClothingItem.findById(itemId)
     .orFail(() => new NotFoundError("Item not found"))
     .then((item) => {
-      // Prevent deleting items that belong to another user
       if (item.owner.toString() !== req.user._id) {
-        throw new ForbiddenError("Forbidden");
+        throw new ForbiddenError("You cannot delete this item");
       }
       return item.deleteOne();
     })
     .then(() => res.send({ message: "Item deleted successfully" }))
     .catch((err) => {
       if (err.name === "CastError") {
-        next(new BadRequestError("Invalid data"));
-        return;
+        return next(new BadRequestError("Invalid data"));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -57,10 +54,9 @@ module.exports.likeItem = (req, res, next) => {
     .then((item) => res.send(item))
     .catch((err) => {
       if (err.name === "CastError") {
-        next(new BadRequestError("Invalid data"));
-        return;
+        return next(new BadRequestError("Invalid data"));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -74,9 +70,8 @@ module.exports.dislikeItem = (req, res, next) => {
     .then((item) => res.send(item))
     .catch((err) => {
       if (err.name === "CastError") {
-        next(new BadRequestError("Invalid data"));
-        return;
+        return next(new BadRequestError("Invalid data"));
       }
-      next(err);
+      return next(err);
     });
 };
