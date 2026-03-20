@@ -31,13 +31,13 @@ This project was built as part of the Practicum Software Engineering program to 
 - Organized MVC architecture (Models, Controllers, Routes)
 - Linter setup following the Airbnb JavaScript Style Guide
 
-## 🎥 Project Pitch Video
+## 🎥 Project Pitch Videos
 
-Please check out my Project 13 pitch video here:
+Check out these videos, where I describe my project
+and some challenges I faced while building it:
 
-👉 **https://drive.google.com/file/d/17-UwYeM-ptnsbax1O5ulru8_Jt3L-Rx5/view**
-
-This video walks through the key steps, challenges, and improvements made while implementing secure authentication and protected routes in the WTWR backend.
+- [WTWR Backend Project Pitch (Authentication & Protected Routes)](https://drive.google.com/file/d/17-UwYeM-ptnsbax1O5ulru8_Jt3L-Rx5/view)
+- [WTWR Full Stack Project Pitch (Final Deployment & Improvements)](https://drive.google.com/file/d/1tY03sY3IIHmgQV-blTXbeiXHWHZCu5nj/view?usp=sharing)
 
 ## 🧩 Running the Project
 
@@ -47,5 +47,4 @@ Clone the repository and install dependencies:
 
 ```bash
 npm install
-
 ```
